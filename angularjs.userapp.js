@@ -29,7 +29,7 @@ var userappModule = angular.module('UserApp', []);
         if (!error) {
             return;
         }
-        
+
         error.handled = false;
 
         if (elementId) {
@@ -70,7 +70,7 @@ var userappModule = angular.module('UserApp', []);
             // This is not the correct $state service
             $state = null;
         }
-        
+
         if (!$state && !$route) {
             $log.warn('The UserApp module needs either ng-route or ui-router to work as expected.');
         }
@@ -98,7 +98,7 @@ var userappModule = angular.module('UserApp', []);
         // Controller for the verify email route
         var verifyEmailController = function($scope, $location, $timeout) {
             $scope.loading = true;
-            
+
             var emailToken = $location.search().email_token;
             service.verifyEmail(emailToken, function(error, result) {
                 if (error) {
@@ -140,7 +140,7 @@ var userappModule = angular.module('UserApp', []);
         };
 
         /**
-         * Invokes authenticationRequired/accessDeniedHandler if route is protected. 
+         * Invokes authenticationRequired/accessDeniedHandler if route is protected.
          * Returns false if access should be denied.
          */
         var checkAccessToRoute = function(route) {
@@ -215,11 +215,11 @@ var userappModule = angular.module('UserApp', []);
             init: function(config) {
                 var that = this;
                 var authResolver = {
-                    auth: function($q, user) {
+                    auth: ['$q', 'user', function($q, user) {
                         if ($state) {
                             var state = states[this.self.name];
                         }
-                        
+
                         if (isPublic($route ? $route.current.$$route : state) == false) {
                             var deferred = $q.defer();
 
@@ -241,7 +241,7 @@ var userappModule = angular.module('UserApp', []);
                         } else {
                             return true;
                         }
-                    }
+                    }]
                 };
                 options = config;
 
@@ -303,11 +303,11 @@ var userappModule = angular.module('UserApp', []);
                         // Check if this is the verify email route
                         if (toState.data && toState.data.verify_email == true) {
                             toState.controller = verifyEmailController;
-                            
+
                             if (toState.views && toState.views['']) {
                                 toState.views[''].controller = verifyEmailController;
                             }
-                            
+
                             return;
                         }
 
@@ -368,7 +368,7 @@ var userappModule = angular.module('UserApp', []);
                     appId = value;
                     UserApp.setAppId(appId);
                 }
-                
+
                 return appId;
             },
 
@@ -386,7 +386,7 @@ var userappModule = angular.module('UserApp', []);
                     // Set session cookie
                     UserApp.tokenStorage.set(token);
                 }
-                
+
                 return token;
             },
 
@@ -503,7 +503,7 @@ var userappModule = angular.module('UserApp', []);
                         that.reset();
                         $rootScope.$broadcast('user.logout');
                         callback && callback(error);
-                    });  
+                    });
                 }
             },
 
@@ -626,10 +626,10 @@ var userappModule = angular.module('UserApp', []);
         };
 
         // Extend the current user with hasPermission() and hasFeature()
-        angular.extend(user, { 
+        angular.extend(user, {
             hasPermission: function(permissions) {
                 return service.hasPermission(permissions);
-            }, 
+            },
             hasFeature: function(features) {
                 return service.hasFeature(features);
             }
@@ -645,21 +645,21 @@ var userappModule = angular.module('UserApp', []);
             link: function(scope, element, attrs) {
                 var evHandler = function(e) {
                     e.preventDefault();
-                    
+
                     if (scope.loading) {
                         return false;
                     }
-                    
+
                     $timeout(function() {
                         scope.loading = true;
                     });
-                    
+
                     user.logout(function() {
                         $timeout(function() {
                             scope.loading = false;
                         });
                     });
-                    
+
                     return false;
                 };
 
@@ -742,7 +742,7 @@ var userappModule = angular.module('UserApp', []);
                             }
                         }
                     }
-                    
+
                     // Sign up
                     user.signup(object, function(error, result) {
                         if (error) {
@@ -770,7 +770,7 @@ var userappModule = angular.module('UserApp', []);
             }
         };
     }]);
-    
+
     // Reset password directive
     userappModule.directive('uaResetPassword', ['$rootScope', '$timeout', 'user', function($rootScope, $timeout, user) {
         return {
@@ -877,7 +877,7 @@ var userappModule = angular.module('UserApp', []);
                     var scopes = 'uaOauthScopes' in attrs ? (attrs.uaOauthScopes || '').split(',') : null;
                     var defaultRedirectUrl = window.location.protocol+'//'+window.location.host+window.location.pathname+getHashMode()+'/oauth/callback/';
                     var redirectUri = 'uaOauthRedirectUri' in attrs ? attrs.uaOauthRedirectUri : defaultRedirectUrl;
-                    
+
                     // PhoneGap/iOS fix
                     if (window.device && window.device.platform == 'iOS') {
                         if (redirectUri.indexOf('file://') == 0) {
